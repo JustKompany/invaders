@@ -18,6 +18,7 @@ public class InvadersApplication implements ApplicationListener {
   private SpriteBatch spriteBatch;
   private OrthographicCamera camera;
   private BulletManager bulletManager;
+  private AlienManager alienManager;
 
   public InvadersApplication(int width, int height) {
     this.width = width;
@@ -32,6 +33,7 @@ public class InvadersApplication implements ApplicationListener {
 
     bulletManager = new BulletManager(height);
     playerSprite = new PlayerSprite(0, width, bulletManager, width/2);
+    alienManager = new AlienManager(25, 300, width);
   }
 
   @Override
@@ -44,12 +46,14 @@ public class InvadersApplication implements ApplicationListener {
     spriteBatch.begin();
     render(playerSprite);
     bulletManager.getBulletSprites().forEach(this::render);
+    alienManager.getAliens().forEach(this::render);
     spriteBatch.end();
 
     CycleInput cycleInput = new CycleInput(Gdx.input.isKeyPressed(Input.Keys.LEFT),
             Gdx.input.isKeyPressed(Input.Keys.RIGHT),
             Gdx.input.isKeyPressed(Input.Keys.SPACE));
 
+    alienManager.process(cycleInput);
     bulletManager.process(cycleInput);
     playerSprite.process(cycleInput);
   }
