@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class InvadersApplication implements ApplicationListener {
@@ -16,6 +17,7 @@ public class InvadersApplication implements ApplicationListener {
 
   private SpriteBatch spriteBatch;
   private OrthographicCamera camera;
+  private BulletManager bulletManager;
 
   public InvadersApplication(int width, int height) {
     this.width = width;
@@ -28,7 +30,8 @@ public class InvadersApplication implements ApplicationListener {
     camera = new OrthographicCamera();
     camera.setToOrtho(false, width, height);
 
-    playerSprite = new PlayerSprite(0, width, width/2);
+    bulletManager = new BulletManager(height);
+    playerSprite = new PlayerSprite(0, width, bulletManager, width/2);
   }
 
   @Override
@@ -39,14 +42,27 @@ public class InvadersApplication implements ApplicationListener {
 
     spriteBatch.setProjectionMatrix(camera.combined);
     spriteBatch.begin();
-    spriteBatch.draw(playerSprite.getTexture(), playerSprite.getX(), playerSprite.getY());
+    render(playerSprite);
+    bulletManager.getBulletSprites().forEach(this::render);
     spriteBatch.end();
 
     CycleInput cycleInput = new CycleInput(Gdx.input.isKeyPressed(Input.Keys.LEFT),
             Gdx.input.isKeyPressed(Input.Keys.RIGHT),
             Gdx.input.isKeyPressed(Input.Keys.SPACE));
 
+    bulletManager.process(cycleInput);
     playerSprite.process(cycleInput);
+  }
+
+  private void render(PositionedSprite positionedSprite) {
+    int rawX = positionedSprite.getX();
+    int rawY = positionedSprite.getY();
+    Texture texture = positionedSprite.getTexture();
+
+    int x = rawX - texture.getWidth()/2;
+    int y = rawY - texture.getHeight()/2;
+
+    spriteBatch.draw(texture, x, y);
   }
 
   @Override
