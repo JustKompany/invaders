@@ -2,6 +2,7 @@ package com.weekenddesigner.invaders;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.sun.org.apache.regexp.internal.RE;
 
 public class PlayerSprite implements Actor, PositionedSprite {
   private static final int a = 1;
@@ -18,6 +19,9 @@ public class PlayerSprite implements Actor, PositionedSprite {
   private final int bulletY;
   private int x;
   private int v;
+
+  private static final int RECHARGE_MS = 500;
+  private long lastFired = 0;
 
   public PlayerSprite(int minX, int maxX, BulletManager bulletManager, int x) {
     this.minX = minX;
@@ -49,7 +53,11 @@ public class PlayerSprite implements Actor, PositionedSprite {
     }
 
     if(cycleInput.isSpaceBar()) {
-      bulletManager.createBullet(x, bulletY);
+      long timeStamp = System.currentTimeMillis();
+      if(timeStamp - lastFired > RECHARGE_MS) {
+        bulletManager.createBullet(x, bulletY);
+        lastFired = timeStamp;
+      }
     }
   }
 
